@@ -1,12 +1,16 @@
 const express = require('express');
 const axios = require('axios');
 const config = require('./config');
+const path = require('path');
 const app = express();
 const port = 3000;
 
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Route d'accueil avec lien vers OAuth
 app.get('/', (req, res) => {
-    res.send(`<a href="https://api.intra.42.fr/oauth/authorize?client_id=${config.client_id}&redirect_uri=${encodeURIComponent(config.redirect_uri)}&response_type=code">Se connecter avec 42</a>`);
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Callback après l'authentification OAuth
