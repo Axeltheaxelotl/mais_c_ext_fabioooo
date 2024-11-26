@@ -6,7 +6,7 @@ const port = 3000;
 
 // Route d'accueil avec lien vers OAuth
 app.get('/', (req, res) => {
-    res.send(`<a href="https://api.intra.42.fr/oauth/authorize?client_id=${config.clientId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=code">Se connecter avec 42</a>`);
+    res.send(`<a href="https://api.intra.42.fr/oauth/authorize?client_id=${config.client_id}&redirect_uri=${encodeURIComponent(config.redirect_uri)}&response_type=code">Se connecter avec 42</a>`);
 });
 
 // Callback après l'authentification OAuth
@@ -16,20 +16,20 @@ app.get('/callback', async (req, res) => {
     if (code) {
         try {
             // Échange du code contre un token d'accès
-            const response = await axios.post(`${config.apiUrl}/oauth/token`, null, {
+            const response = await axios.post(`${config.api_base_url}/oauth/token`, null, {
                 params: {
-                    client_id: config.clientId,
-                    client_secret: config.clientSecret,
+                    client_id: config.client_id,
+                    client_secret: config.client_secret,
                     code: code,
                     grant_type: 'authorization_code',
-                    redirect_uri: config.redirectUri
+                    redirect_uri: config.redirect_uri
                 }
             });
 
             const accessToken = response.data.access_token;
 
             // Utilisation du token pour obtenir des données utilisateur
-            const userResponse = await axios.get(`${config.apiUrl}/v2/me`, {
+            const userResponse = await axios.get(`${config.api_base_url}/v2/me`, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`
                 }
