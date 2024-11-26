@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard 42</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #555;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .leaderboard {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .leaderboard h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .leaderboard ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .leaderboard li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .leaderboard li:last-child {
+            border-bottom: none;
+        }
+
+        .leaderboard .user {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .leaderboard .user span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Leaderboard 42</h1>
+    <p>Se connecter à 42 pour voir votre profil et accéder au leaderboard.</p>
+    <a href="/"><button>Se connecter avec 42</button></a>
+
+    <div class="leaderboard">
+        <h2>Leaderboard des utilisateurs</h2>
+        <ul id="user-list">
+            <!-- Dynamically filled with user data -->
+        </ul>
+    </div>
+
+    <script>
+        const clientId = 'u-s4t2ud-58e91ff8865d51f28401c794095ee73cd986e94cb866777db1a299b59f421cf8';
+        const redirectUri = 'https://profile.intra.42.fr/';
+        const apiBaseUrl = 'https://api.intra.42.fr';
+
+        // Fonction pour récupérer le code d'authentification de l'URL et obtenir le token
+        async function getAuthToken(code) {
+            const url = `${apiBaseUrl}/oauth/token`;
+            const params = new URLSearchParams({
+                grant_type: 'authorization_code',
+                client_id: clientId,
+                redirect_uri: redirectUri,
+                code: code,
+            });
+
+            const response = await fetch(url, {
+                method: 'POST',
+                body: params,
+            });
+
+            const data = await response.json();
+            return data.access_token;
+        }
+
+        // Fonction pour récupérer les informations de l'utilisateur à partir de l'API 42
+        async function getUserProfile(token) {
+            const url = `${apiBaseUrl}/v2/me`;
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const data = await response.json();
+            return data;
+        }
+
+        // Exemple de données de leaderboard, à remplacer par des données dynamiques via l'API
+        const leaderboardData = [
+            { username: 'user1', score: 1000 },
+            { username: 'user2', score: 850 },
+            { username: 'user3', score: 750 },
+            { username: 'user4', score: 650 }
+        ];
+
+        // Fonction pour afficher le leaderboard
+        function displayLeaderboard(users) {
+            const userList = document.getElementById('user-list');
+            userList.innerHTML = ''; // Clear the list before adding new users
+
+            users.forEach(user => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('user');
+                listItem.innerHTML = `
+                    <span>${user.username}</span> 
+                    <span>Score: ${user.score}</span>
+                `;
+                userList.appendChild(listItem);
+            });
+        }
+
+        // Afficher le leaderboard d'exemple (remplacer avec les données réelles après connexion)
+        displayLeaderboard(leaderboardData);
+
+        // Récupérer le code d'authentification depuis l'URL (par exemple, après redirection OAuth)
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+
+        if (code) {
+            // Si le code d'authentification est présent dans l'URL, on récupère le token
+            getAuthToken(code).then(token => {
+                // Utiliser le token pour récupérer les informations de l'utilisateur
+                getUserProfile(token).then(user => {
+                    console.log(user);
+                    // Mettre à jour l'affichage de l'utilisateur ici
+                    // Par exemple : document.getElementById('username').textContent = user.login;
+                });
+            });
+        }
+    </script>
+
+</body>
+</html>
+
